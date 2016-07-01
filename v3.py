@@ -4,7 +4,6 @@ import pandas
 import hddm
 from patsy import dmatrix
 import numpy as np
-import inspect
 
 ##########################################
 # job id number
@@ -22,11 +21,11 @@ if jobNum != 'get_df':
     includes=sys.argv[6]
 
     if includes == 'all':
-        inc=('z', 'sz', 'sv', 'st')
-        groupOnly=('sz', 'sv', 'st')
+        inc=('z', 'sz', 'sv', 'st', 'p_outlier')
+        groupOnly=('sz', 'sv', 'st', 'p_outlier')
     elif includes == 'quick':
-        inc=('z')
-        groupOnly = ()
+        inc=('z', 'p_outlier')
+        groupOnly = ('p_outlier')
 
     # parameters that depend on congruence
     try:
@@ -68,7 +67,7 @@ def get_data_frame():
     df.stimulus.replace({'good': 'slow', 'bad': 'fast'}, inplace=True)
     df.answered.replace({'good': 'slow', 'bad': 'fast'}, inplace=True)
 
-    goodIdx = (df.direction_travel == df.answered_direction)
+    goodIdx = (df.rt >= 0.5) & (df.direction_travel == df.answered_direction)
     print('Final size: {:d}'.format(df[goodIdx].shape[0]))
     print('\n\n\nBad rows: {:d}'.format(df[~goodIdx].shape[0]))
     print(df[~goodIdx])
@@ -83,8 +82,6 @@ def get_data_frame():
     df = df.drop('rt_ms', axis=1)
 
     return df 
-
-
 
 # get the data frame
 df = get_data_frame()
@@ -182,9 +179,9 @@ def run_model(i, task, params, nSamples, nBurn):
     if not os.path.exists(modelFilename):
         model = hddm.HDDMRegressor(df[df.task==task],
                                    reg,
-                                   include=inc + ['p_outlier', 'z'],
+                                   include=inc,
                                    group_only_regressors=False,
-                                   group_only_nodes=groupOnly + ['p_outlier'],
+                                   group_only_nodes=groupOnly,
                                    std_depends=True,
                                    keep_regressor_trace=True,
                                    informative=False)
