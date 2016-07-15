@@ -176,8 +176,10 @@ def run_model(i, task, params, nSamples, nBurn):
                                        congruence,
                                        stimCode))
 
+    useData = df[df.task == task]
+
     if not os.path.exists(modelFilename):
-        model = hddm.HDDMRegressor(df[df.task==task],
+        model = hddm.HDDMRegressor(useData,
                                    reg,
                                    include=inc,
                                    group_only_regressors=False,
