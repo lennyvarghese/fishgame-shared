@@ -51,25 +51,17 @@ def get_model_paths(task):
 
 
 if __name__ == '__main__':
+    incong = 'C(condition, Treatment("control"))[T.incongruent]' 
+    cong = 'C(condition, Treatment("control"))[T.congruent]'
     for task in ['audio', 'visual']:
         resultDir = get_model_paths(task)
-        for s in ['concat', '1', '2']:
-            resList = []
-            for r in resultDir:
-                if s == 'concat':
-                    m = load_models(r)
-                else:
-                    m = hddm.load(os.path.join(r, 'model_{:s}.pkl'.format(s)))
-                tr = m.get_traces()
-                tr.to_csv(os.path.join(r, 'model_{:s}_traces.csv'.format(s)),
-                          header=True, index=False)
-                dic = get_dic(m)
-
-                x = [s['outcome'] for s in m.model_descrs if 
-                     'C(condition, Treatment("control")' in s['model']]
-                resList.append((task, '+'.join(x), dic))
-
-            d = pandas.DataFrame(resList, columns=['task', 'dependsOn', 'dic'])
-            d = d.sort_values(by='dic')
-            d.to_csv('dic_' + task + '_results_model_{:s}.csv'.format(s), 
-                 header=True, index=False)
+        resList = []
+        for r in resultDir:
+            m = load_models(r)
+            tr = m.get_group_traces()
+            tr.rename(columns=lambda x: x.replace(incong, '_incongruent'),
+                      inplace=True)
+            tr.rename(columns=lambda x: x.replace(cong, '_congruent'),
+                      inplace=True) 
+            tr.to_csv(os.path.join(r, 'model_{:s}_traces.csv'.format(s)),
+                      header=True, index=False)
