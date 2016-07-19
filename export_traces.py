@@ -63,5 +63,5 @@ if __name__ == '__main__':
                       inplace=True)
             tr.rename(columns=lambda x: x.replace(cong, '_congruent'),
                       inplace=True) 
-            tr.to_csv(os.path.join(r, 'model_{:s}_traces.csv'.format(s)),
+            tr.to_csv(os.path.join(r, 'concatenated_traces.csv'),
                       header=True, index=False)
