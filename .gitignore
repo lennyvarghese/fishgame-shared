@@ -1,3 +1,4 @@
 *.pkl
 logs/*
+old/
 *traces*.csv
